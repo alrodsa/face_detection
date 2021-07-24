@@ -12,7 +12,7 @@ At first instance it is going to be detected faces and eyes using **OpenCV**, an
 The implementation is as the following figure shows:
 <img src="https://github.com/alrodsa/face_recognition/blob/main/diagrams/face_recognitionv1.0.png">
 
-There are 3 possible ways to execute the code:
+There are 3 possible ways to detect and recognize faces:
 - Image mode -> ```python3 face_recognition.py -i image_path```
 - Video mode -> ```python3 face_recognition.py -v vide_path```
 - Camera mode -> ```python3 face_recognition.py -c camera_id```
