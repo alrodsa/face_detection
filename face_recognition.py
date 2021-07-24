@@ -1,6 +1,7 @@
 import cv2
 import sys
 import time
+from datetime import datetime
 '''
     Execution:
         python3 basic_recognition -i path_image
@@ -13,6 +14,12 @@ face_detector = cv2.CascadeClassifier('detection_models/frontal_face_detection_t
 
 #Trained face detector file
 eyes_detector = cv2.CascadeClassifier('detection_models/eyes_detection_trained.xml')
+
+#Save file with face and eyes detection
+save_file = False
+
+#Video API
+fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
 
 '''
     Function that detects eyes in a frame, it returns True if there are 2 or more
@@ -67,6 +74,10 @@ def image_recognition(file):
     #Call to function for detecting faces
     img = facial_detection(img)
 
+    #Save file
+    if save_file == True:
+        cv2.imwrite(f'{file[:-4]}_recognition.jpg', img)
+    
     #Render image with detected faces 
     cv2.imshow(f'Detected faces in image <{file}>', img)
 
@@ -77,61 +88,78 @@ def image_recognition(file):
     Function for detecting and recognize faces in a video
 '''
 def video_recognition(file):
-    try:
-        #Load the video
-        video = cv2.VideoCapture(file)
+    #Load the video
+    video = cv2.VideoCapture(file)
 
-        #For each frame of the video
-        while True:
-            #Read a frame and if it is the end of the video
-            ret, frame = video.read()
+    #Save file with detection of faces and eyes
+    if save_file == True:
+        width  = video.get(3)
+        height = video.get(4) 
+        print(f'[INFO] Size of video -> Width: {width}, Height: {height}')
+        output_file = cv2.VideoWriter(f'{file[:-4]}_recognition.mp4', fourcc, 20.0, (int(width), int(height)))
 
-            if not ret:
-                print('[INFO] Exiting video, end of video...')
-                break
+    #For each frame of the video
+    while True:
+        #Read a frame and if it is the end of the video
+        ret, frame = video.read()
 
-            #Call to function for detecting faces
-            frame = facial_detection(frame)
+        if not ret:
+            print('[INFO] Exiting video, end of video...')
+            break
 
-            #Render the image with the faces detected    
-            cv2.imshow(f'Detecting faces on video <{video}>', frame)
+        #Call to function for detecting faces
+        frame = facial_detection(frame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                print('[INFO] Exiting video, q key pushed...')
-                break
+        #Render the image with the faces detected    
+        cv2.imshow(f'Detecting faces on video <{video}>', frame)
+        
+        #Store frame on the output file
+        if save_file == True:
+            output_file.write(frame)
 
-        video.release()
-        cv2.destroyAllWindows()
-    except:
-        print(f'[ERROR] Cannot load video {file}...')
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            print('[INFO] Exiting video, q key pushed...')
+            break
+            
+    video.release()
+    cv2.destroyAllWindows()
 
 def camera_recognition(camera_id):
-    try:
-        #Load camera
-        cam = cv2.VideoCapture(int(camera_id))
+    #Load camera
+    cam = cv2.VideoCapture(int(camera_id))
 
-        while True:
-            #Read a frame and if it is the end of the video
-            ret, frame = cam.read()
+    if save_file == True:
+        width  = cam.get(3)
+        height = cam.get(4) 
+        print(f'[INFO] Size of video -> Width: {width}, Height: {height}')
+        now =  datetime.now()
+        print(now)
+        output_file = cv2.VideoWriter(f'./data/{now}_recognition.mp4', fourcc, 20.0, (int(width), int(height)))
 
-            if not ret:
-                print('[INFO] Exiting camera, streaming end...')
-                break
+    while True:
+        #Read a frame and if it is the end of the video
+        ret, frame = cam.read()
 
-            #Call to function for detecting faces
-            frame = facial_detection(frame)
+        if not ret:
+            print('[INFO] Exiting camera, streaming end...')
+            break
 
-            #Render the image with the faces detected
-            cv2.imshow(f'Camera <{camera_id}>', frame)
+        #Call to function for detecting faces
+        frame = facial_detection(frame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                print('[INFO] Exiting camera, q key pushed...')
-                break
+        #Render the image with the faces detected
+        cv2.imshow(f'Camera <{camera_id}>', frame)
+
+        #Store frame on the output file
+        if save_file == True:
+            output_file.write(frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            print('[INFO] Exiting camera, q key pushed...')
+            break
         
-        cam.release()
-        cv2.destroyAllWindows()
-    except:
-        print(f'[ERROR] Cannot load camera {camera_id}...')
+    cam.release()
+    cv2.destroyAllWindows()
 
 def main(option,path):
     if option == '-i':
@@ -146,6 +174,10 @@ if __name__ == "__main__":
     if len(sys.argv) > 2:
         param = sys.argv[-2]
         param2 = sys.argv[-1]
+
+        if '-s' in sys.argv and sys.argv[-3] == '-s':
+            save_file = True
+            print("[INFO] Save file enabled...")
 
         if param not in ['-i','-v','-c']:
             print("[ERROR] Only -i, -v or -c params are accepted...")
