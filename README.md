@@ -14,6 +14,6 @@ The implementation is as the following figure shows:
 
 There are 3 possible ways to execute the code:
 - Image mode -> ```python3 face_recognition.py -i image_path```
-- Video mode -> ```python3 face_recognition.py -v vide_path``
+- Video mode -> ```python3 face_recognition.py -v vide_path```
 - Camera mode -> ```python3 face_recognition.py -c camera_id```
 
