@@ -18,5 +18,5 @@ There are 3 possible ways to detect and recognize faces:
 - Camera mode -> ```python3 face_recognition.py -c camera_id```
 
 There is an special option for saving the result in a new file; using the option **-s** as it is shown in the following command:
-```python3 face_recognition.py -s [-i image_path | -v video_path | -c camera_id]```
+- ```python3 face_recognition.py -s [-i image_path | -v video_path | -c camera_id]```
 
